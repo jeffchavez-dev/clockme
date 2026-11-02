@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { sampleState } from "@/lib/sample";
-import { replaceAll, runningEntry, updateSettings, useStore } from "@/lib/store";
+import { pendingChanges, replaceAll, runningEntry, signOut, updateSettings, useStore, type SyncStatus } from "@/lib/store";
+import { SignIn } from "./sign-in";
 import { Icons, Popover } from "./ui";
 
 function SettingsMenu() {
@@ -87,6 +88,23 @@ function SettingsMenu() {
               </div>
             )}
           </div>
+          {state.user && (
+            <div className="border-t border-rule pt-3">
+              <p className="truncate px-2.5 text-xs text-muted">Signed in as {state.user.email}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  const n = pendingChanges();
+                  if (n && !window.confirm(`${n} change${n === 1 ? " hasn't" : "s haven't"} synced yet and will be lost. Sign out anyway?`)) return;
+                  close();
+                  void signOut();
+                }}
+                className="mt-1 w-full rounded-lg px-2.5 py-1.5 text-left text-sm hover:bg-sunken"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       )}
     </Popover>
@@ -102,6 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const state = useStore();
   const running = runningEntry(state);
+  const signedOut = state.mode === "cloud" && state.ready && !state.user;
 
   return (
     <>
@@ -111,7 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span aria-hidden className={`size-2.5 rounded-[3px] ${running ? "pulse-dot bg-accent" : "bg-ink"}`} />
             clockme
           </Link>
-          <nav className="flex gap-1">
+          <nav className={`flex gap-1 ${signedOut ? "hidden" : ""}`}>
             {NAV.map(({ href, label }) => {
               const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
               return (
@@ -126,12 +145,24 @@ export function AppShell({ children }: { children: ReactNode }) {
             })}
           </nav>
           <div className="ml-auto flex items-center gap-3">
+            {state.user && <SyncBadge status={state.sync} />}
             <span className="hidden text-sm text-muted sm:inline">{state.ready ? state.settings.workspace : ""}</span>
-            <SettingsMenu />
+            {(state.mode === "local" || state.user) && <SettingsMenu />}
           </div>
         </div>
       </header>
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main className="flex flex-1 flex-col">{signedOut ? <SignIn /> : children}</main>
     </>
+  );
+}
+
+const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", saving: "Saving…", offline: "Offline" };
+
+function SyncBadge({ status }: { status: SyncStatus }) {
+  return (
+    <span title={status === "offline" ? "Changes are saved on this device and will sync when you're back online." : undefined} className="flex items-center gap-1.5 text-xs text-muted">
+      <span aria-hidden className={`size-1.5 rounded-full ${status === "synced" ? "bg-[#15803d]" : status === "saving" ? "pulse-dot bg-muted" : "bg-accent"}`} />
+      {SYNC_LABEL[status]}
+    </span>
   );
 }

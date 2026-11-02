@@ -3,7 +3,7 @@
 // start gets the seconds offset that makes start + duration land on the printed
 // end minute. Totals must match Toggl: 50:09:26.
 
-import type { State } from "./store";
+import type { Data } from "./store";
 
 const rows: [date: string, start: string, end: string, duration: string, description: string][] = [
   ["2026-10-31", "06:53", "09:20", "2:26:20", "Scheduling / Weekly Bio- Final"],
@@ -31,12 +31,12 @@ const rows: [date: string, start: string, end: string, duration: string, descrip
   ["2026-10-16", "06:56", "08:09", "1:12:17", "Scheduling/Email Tracker Update/Weekly Event preview update"],
 ];
 
-export function sampleState(): Omit<State, "ready"> {
+export function sampleState(): Data {
   return {
     projects: [],
     tags: [],
     settings: { member: "Jeff", workspace: "Resilience Organization" },
-    entries: rows.map(([date, start, end, duration, description], i) => {
+    entries: rows.map(([date, start, end, duration, description]) => {
       const [y, mo, d] = date.split("-").map(Number);
       const [h, m] = start.split(":").map(Number);
       const [eh, em] = end.split(":").map(Number);
@@ -48,7 +48,7 @@ export function sampleState(): Omit<State, "ready"> {
       const startAt = new Date(y, mo - 1, d, h, m, sec);
       const endAt = new Date(startAt.getTime() + durSec * 1000);
       return {
-        id: `sample-${i}`,
+        id: crypto.randomUUID(),
         description,
         start: startAt.toISOString(),
         end: endAt.toISOString(),

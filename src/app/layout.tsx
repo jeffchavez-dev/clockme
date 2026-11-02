@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,15 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "clockme",
   description: "Time tracking and reports.",
+  // Added to the home screen, it opens full-screen like a native app.
+  appleWebApp: { capable: true, title: "clockme", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3efe6" },
+    { media: "(prefers-color-scheme: dark)", color: "#14120e" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

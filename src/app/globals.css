@@ -1,26 +1,103 @@
 @import "tailwindcss";
 
+/* clockme — ledger paper, ink, one hot accent. Numbers are always mono + tabular. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f3efe6;
+  --surface: #fbf9f4;
+  --sunken: #ebe6da;
+  --ink: #17140f;
+  --ink-2: #4a443a;
+  --muted: #857c6d;
+  --rule: #ddd5c4;
+  --rule-strong: #c6bca8;
+  --accent: #d4441c;
+  --accent-ink: #fff7f2;
+  --accent-soft: #f6dfd3;
+  --focus: #17140f;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --paper: #14120e;
+    --surface: #1c1915;
+    --sunken: #100e0b;
+    --ink: #f1ebdf;
+    --ink-2: #c9c0b0;
+    --muted: #8d8576;
+    --rule: #2d2922;
+    --rule-strong: #403a30;
+    --accent: #f0612f;
+    --accent-ink: #1a0c05;
+    --accent-soft: #3a1d11;
+    --focus: #f1ebdf;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss02";
+}
+
+.num {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Inputs that read as text until you touch them. */
+.ghost-input {
+  background: transparent;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  transition: background-color 120ms;
+}
+.ghost-input:hover {
+  background: var(--sunken);
+}
+.ghost-input:focus {
+  background: var(--surface);
+  outline: 1px solid var(--rule-strong);
+  outline-offset: 0;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
 }
